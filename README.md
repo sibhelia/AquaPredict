@@ -10,10 +10,10 @@ Temiz içme suyuna erişim, en temel insan haklarından biridir. Çevresel sürd
 Aşağıdaki ekran görüntüleri AquaPredict'in **Flask tabanlı** yeni ve modern web arayüzüne aittir:
 
 ### 1. Güvenli Su Profili (İçilebilir)
-![Güvenli Su Analizi](assets/screenshots/01_safe.png)
+![Riskli Su Analizi](assets/screenshots/02_danger.png)
 
 ### 2. Riskli Su Profili (İçilemez)
-![Riskli Su Analizi](assets/screenshots/02_danger.png)
+![Güvenli Su Analizi](assets/screenshots/01_safe.png)
 
 ### 3. Manuel Veri Girişi ve Hızlı Analiz
 ![Manuel Ayarlar](assets/screenshots/03_manual.png)
