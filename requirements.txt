@@ -6,3 +6,7 @@ plotly
 missingno
 scikit-learn
 jupyter
+streamlit
+joblib
+openpyxl
+xlsxwriter
