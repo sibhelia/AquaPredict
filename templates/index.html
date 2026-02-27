@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AquaPredict | Su Kalitesi Analizi</title>
+    <link rel="icon" type="image/png" href="/assets/water_drop.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e0e7ff 0%, #f1f5f9 100%);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+
+        .window {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(30, 58, 138, 0.09);
+            border: 1px solid #e2e8f0;
+            max-width: 920px;
+            margin: 0 auto;
+            padding: 2rem 2.5rem 3rem;
+        }
+
+        /* TABS */
+        .tabs {
+            display: flex;
+            gap: 6px;
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 6px;
+            margin-bottom: 2rem;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            flex: 1;
+            max-width: 200px;
+            padding: .5rem .8rem;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: #64748b;
+            font-weight: 600;
+            font-size: .92rem;
+            cursor: pointer;
+            transition: all .2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .tab-btn.active {
+            background: #fff;
+            color: #0284c7;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07);
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        /* GRID */
+        .param-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* PARAM CARD */
+        .param-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: .9rem 1rem .8rem;
+            transition: all .2s;
+        }
+
+        .param-card:hover {
+            border-color: #0ea5e9;
+            box-shadow: 0 4px 12px rgba(14, 165, 233, .12);
+            background: #fff;
+        }
+
+        /* VALUE BOX / INPUT */
+        .val-input-wrap {
+            position: relative;
+            margin-bottom: .35rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .val-input {
+            width: 100%;
+            background: #f0f9ff;
+            border: 1.5px solid #bae6fd;
+            border-radius: 8px;
+            padding: .3rem 2rem .3rem .5rem;
+            /* Sağdan birim için boşluk */
+            font-size: .95rem;
+            font-weight: 700;
+            color: #0284c7;
+            text-align: center;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .val-input:focus {
+            border-color: #0ea5e9;
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+            background: #ffffff;
+        }
+
+        /* Input oklarını gizleme (Number) */
+        .val-input::-webkit-outer-spin-button,
+        .val-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .val-input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        .val-unit {
+            position: absolute;
+            right: 0.8rem;
+            color: #7dd3fc;
+            font-size: 0.75rem;
+            font-weight: 700;
+            pointer-events: none;
+        }
+
+        /* PARAM HEADER */
+        .param-header {
+            display: flex;
+            align-items: baseline;
+            gap: .3rem;
+            margin-bottom: .4rem;
+            flex-wrap: nowrap;
+            overflow: hidden;
+        }
+
+        .param-name {
+            color: #0f172a;
+            font-weight: 700;
+            font-size: .85rem;
+            white-space: nowrap;
+        }
+
+        .param-who {
+            color: #94a3b8;
+            font-size: .68rem;
+            font-weight: 500;
+            white-space: nowrap;
+            margin-left: auto;
+            padding-left: .3rem;
+        }
+
+        /* CUSTOM SLIDER */
+        .slider-wrap {
+            position: relative;
+            padding: .4rem 0 1.2rem;
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 5px;
+            border-radius: 3px;
+            outline: none;
+            cursor: pointer;
+            background: linear-gradient(to right, #0ea5e9 0%, #0ea5e9 50%, #e2e8f0 50%, #e2e8f0 100%);
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 17px;
+            height: 17px;
+            border-radius: 50%;
+            background: #0284c7;
+            border: 2px solid #0ea5e9;
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, .22);
+            cursor: pointer;
+            transition: transform .15s;
+        }
+
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+
+        input[type=range]::-moz-range-thumb {
+            width: 17px;
+            height: 17px;
+            border-radius: 50%;
+            background: #0284c7;
+            border: 2px solid #0ea5e9;
+            cursor: pointer;
+        }
+
+        .slider-minmax {
+            display: flex;
+            justify-content: space-between;
+            font-size: .68rem;
+            color: #94a3b8;
+            margin-top: .15rem;
+        }
+
+        /* HR */
+        hr {
+            border: none;
+            border-top: 1px solid #e2e8f0;
+            margin: 1.8rem 0;
+        }
+
+        /* WARNINGS */
+        .warn-box {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            border-radius: 8px;
+            padding: .7rem 1rem;
+            color: #b45309;
+            font-size: .85rem;
+            font-weight: 500;
+            margin: .4rem 0;
+        }
+
+        #warnings-wrap {
+            margin-bottom: 1rem;
+        }
+
+        #warnings-title {
+            font-weight: 700;
+            color: #0f172a;
+            font-size: .95rem;
+            margin-bottom: .5rem;
+            display: none;
+        }
+
+        /* ANALYZE BUTTON */
+        .btn-analyze {
+            display: block;
+            margin: 0 auto;
+            width: 55%;
+            max-width: 420px;
+            min-width: 220px;
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            color: #fff;
+            border: none;
+            border-radius: 16px;
+            padding: .85rem 0;
+            font-size: 1.15rem;
+            font-weight: 800;
+            letter-spacing: .03em;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(2, 132, 199, .28);
+            transition: all .2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-analyze:hover {
+            box-shadow: 0 10px 28px rgba(2, 132, 199, .4);
+            transform: translateY(-2px);
+        }
+
+        /* RESULT */
+        .result-card {
+            border-radius: 20px;
+            padding: 2.2rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .result-safe {
+            background: #f0fdf4;
+            border: 2px solid #86efac;
+            box-shadow: 0 10px 30px rgba(34, 197, 94, .13);
+        }
+
+        .result-danger {
+            background: #fff1f2;
+            border: 2px solid #fecaca;
+            box-shadow: 0 10px 30px rgba(225, 29, 72, .13);
+        }
+
+        .result-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: .4rem;
+        }
+
+        .result-sub {
+            font-size: 1rem;
+            color: #475569;
+            font-weight: 500;
+        }
+
+        /* METRICS */
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .metric-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.1rem;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, .03);
+            text-align: center;
+        }
+
+        .metric-label {
+            color: #64748b;
+            font-weight: 600;
+            font-size: .78rem;
+            text-transform: uppercase;
+            margin-bottom: .3rem;
+        }
+
+        .metric-value {
+            color: #0f172a;
+            font-weight: 800;
+            font-size: 1.6rem;
+        }
+
+        /* GAUGE */
+        .gauge-wrap {
+            margin: 0 auto 1.5rem;
+            max-width: 380px;
+        }
+
+        .gauge-svg {
+            width: 100%;
+        }
+
+        /* XAI BAR */
+        .xai-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .xai-bar-row {
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            margin-bottom: .55rem;
+        }
+
+        .xai-label {
+            width: 90px;
+            font-size: .78rem;
+            font-weight: 600;
+            color: #1e293b;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .xai-bar-bg {
+            flex: 1;
+            height: 10px;
+            background: #f1f5f9;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .xai-bar-fill {
+            height: 100%;
+            border-radius: 5px;
+            background: linear-gradient(90deg, #2563eb, #0ea5e9);
+            transition: width .6s ease;
+        }
+
+        .xai-score {
+            font-size: .72rem;
+            color: #64748b;
+            width: 36px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        /* RADAR */
+        .radar-wrap {
+            display: flex;
+            justify-content: center;
+        }
+
+        /* BULK */
+        .upload-area {
+            border: 2px dashed #cbd5e1;
+            border-radius: 14px;
+            padding: 2rem;
+            text-align: center;
+            color: #94a3b8;
+            font-size: .95rem;
+            cursor: pointer;
+            transition: all .2s;
+            margin-bottom: 1rem;
+        }
+
+        .upload-area:hover {
+            border-color: #0ea5e9;
+            background: #f0f9ff;
+            color: #0284c7;
+        }
+
+        .btn-secondary {
+            display: inline-block;
+            background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            padding: .6rem 1.4rem;
+            font-size: .9rem;
+            font-weight: 600;
+            color: #1e293b;
+            cursor: pointer;
+            transition: all .2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-secondary:hover {
+            border-color: #0ea5e9;
+            background: #f0f9ff;
+            color: #0284c7;
+        }
+
+        .btn-green {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: .65rem 1.6rem;
+            font-size: .9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-green:hover {
+            box-shadow: 0 4px 14px rgba(5, 150, 105, .3);
+            transform: translateY(-1px);
+        }
+
+        .bulk-table-wrap {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: .8rem;
+        }
+
+        th {
+            background: #f8fafc;
+            color: #64748b;
+            font-weight: 700;
+            padding: .5rem .7rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: .45rem .7rem;
+            border-bottom: 1px solid #f1f5f9;
+            color: #1e293b;
+            white-space: nowrap;
+        }
+
+        tr:hover td {
+            background: #f8fafc;
+        }
+
+        .badge-safe {
+            background: #dcfce7;
+            color: #15803d;
+            border-radius: 6px;
+            padding: .15rem .5rem;
+            font-weight: 700;
+            font-size: .75rem;
+        }
+
+        .badge-risky {
+            background: #fee2e2;
+            color: #dc2626;
+            border-radius: 6px;
+            padding: .15rem .5rem;
+            font-weight: 700;
+            font-size: .75rem;
+        }
+
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            color: #94a3b8;
+            font-size: .82rem;
+            margin-top: 2rem;
+        }
+
+        /* SPINNER */
+        .spinner {
+            display: none;
+            text-align: center;
+            padding: 1rem;
+            color: #0284c7;
+            font-weight: 600;
+        }
+
+        .spinner.show {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="window">
+        <!-- BANNER -->
+        <div style="width: 100%; margin-bottom: 2rem; display: flex; justify-content: center;">
+            <img src="/assets/banner.png" alt="AquaPredict Banner"
+                style="max-width: 100%; height: auto; border-radius: 12px;">
+        </div>
+
+        <!-- TABS -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('manual')">Manuel Analiz</button>
+            <button class="tab-btn" onclick="switchTab('result')">Sonuç & Rapor</button>
+            <button class="tab-btn" onclick="switchTab('xai')">Model (XAI)</button>
+            <button class="tab-btn" onclick="switchTab('bulk')">Toplu Analiz</button>
+        </div>
+
+        <!-- ══ TAB 1: MANUEL ══ -->
+        <div id="tab-manual" class="tab-panel active">
+            <p style="font-size:1.05rem;color:#1e293b;font-weight:600;margin-bottom:1.2rem;">Ölçüm Değerlerini Ayarlayın
+            </p>
+
+            <div class="param-grid" id="param-grid"></div>
+
+            <div id="warnings-wrap">
+                <p id="warnings-title"> Anlık Uyarılar</p>
+            </div>
+
+            <hr />
+            <button class="btn-analyze" onclick="analyze()"> Analizi Başlat</button>
+            <div id="analyze-spinner" class="spinner">Analiz ediliyor...</div>
+        </div>
+
+        <!-- ══ TAB 2: SONUÇ ══ -->
+        <div id="tab-result" class="tab-panel">
+            <div id="result-placeholder" style="color:#64748b;padding:2rem;text-align:center;">
+                Henüz analiz yapılmadı. <strong>Manuel Analiz</strong> sekmesine geçin.
+            </div>
+            <div id="result-content" style="display:none">
+                <div id="result-card" class="result-card"></div>
+                <div class="metrics">
+                    <div class="metric-card">
+                        <div class="metric-label">İçilebilir Olasılığı</div>
+                        <div class="metric-value" id="m-safe"></div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">İçilemez Olasılığı</div>
+                        <div class="metric-value" id="m-risky"></div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Model Kararı</div>
+                        <div class="metric-value" id="m-decision"></div>
+                    </div>
+                </div>
+                <hr />
+                <h4 style="color:#0f172a;font-weight:700;margin-bottom:1rem;">Olasılık Göstergesi</h4>
+                <div class="gauge-wrap">
+                    <svg class="gauge-svg" viewBox="0 0 300 160" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Background arc -->
+                        <path d="M 20 150 A 130 130 0 0 1 280 150" fill="none" stroke="#f1f5f9" stroke-width="22"
+                            stroke-linecap="round" />
+                        <!-- Color bands -->
+                        <path d="M 20 150 A 130 130 0 0 1 97 47" fill="none" stroke="#fee2e2" stroke-width="22"
+                            stroke-linecap="butt" opacity=".8" />
+                        <path d="M 97 47 A 130 130 0 0 1 203 47" fill="none" stroke="#fef3c7" stroke-width="22"
+                            stroke-linecap="butt" opacity=".8" />
+                        <path d="M 203 47 A 130 130 0 0 1 280 150" fill="none" stroke="#dcfce7" stroke-width="22"
+                            stroke-linecap="butt" opacity=".8" />
+                        <!-- Active arc -->
+                        <path id="gauge-arc" d="M 20 150 A 130 130 0 0 1 20 150" fill="none" stroke="#10b981"
+                            stroke-width="22" stroke-linecap="round" />
+                        <!-- Center text -->
+                        <text id="gauge-pct" x="150" y="130" text-anchor="middle" font-size="32" font-weight="800"
+                            font-family="Inter" fill="#0f172a">0%</text>
+                        <text x="20" y="165" text-anchor="middle" font-size="11" fill="#94a3b8"
+                            font-family="Inter">0%</text>
+                        <text x="150" y="28" text-anchor="middle" font-size="11" fill="#94a3b8"
+                            font-family="Inter">50%</text>
+                        <text x="280" y="165" text-anchor="middle" font-size="11" fill="#94a3b8"
+                            font-family="Inter">100%</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ TAB 3: XAI ══ -->
+        <div id="tab-xai" class="tab-panel">
+            <h3 style="color:#0f172a;margin-bottom:.4rem;">Model Karar Mekanizması</h3>
+            <p style="color:#64748b;font-size:.9rem;margin-bottom:1.2rem;">Hangi parametrelerin modeli en çok
+                etkilediğini ve su profilinizi gösterir.</p>
+            <hr />
+            <div class="xai-grid">
+                <div>
+                    <h4 style="color:#1e293b;font-size:1rem;margin-bottom:1rem;">Özellik Önem Sıralaması</h4>
+                    <div id="importance-chart"></div>
+                </div>
+                <div>
+                    <h4 style="color:#1e293b;font-size:1rem;margin-bottom:1rem;text-align:center;">Profil Radar Analizi
+                    </h4>
+                    <div class="radar-wrap">
+                        <svg id="radar-svg" width="340" height="320"></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ TAB 4: BULK ══ -->
+        <div id="tab-bulk" class="tab-panel">
+            <h3 style="color:#0f172a;margin-bottom:.3rem;">Toplu Veri Yükleme</h3>
+            <p style="color:#64748b;font-size:.88rem;margin-bottom:1.2rem;">Yüzlerce su örneğini saniyeler içinde analiz
+                edin.</p>
+            <button class="btn-secondary" onclick="downloadSample()">⬇ Örnek CSV İndir</button>
+            <hr />
+            <div class="upload-area" id="upload-area" onclick="document.getElementById('csv-input').click()">
+                📂 CSV dosyanızı buraya bırakın veya tıklayın
+                <input type="file" id="csv-input" accept=".csv" style="display:none" onchange="uploadBulk(this)" />
+            </div>
+            <div id="bulk-spinner" class="spinner">Analiz ediliyor...</div>
+            <div id="bulk-summary" style="display:none">
+                <div class="metrics" style="margin-bottom:1rem;">
+                    <div class="metric-card">
+                        <div class="metric-label">Güvenli</div>
+                        <div class="metric-value" id="b-safe" style="color:#10b981;"></div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Riskli</div>
+                        <div class="metric-value" id="b-risky" style="color:#ef4444;"></div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Ort. Olasılık</div>
+                        <div class="metric-value" id="b-avg"></div>
+                    </div>
+                </div>
+                <button class="btn-green" id="download-excel-btn">⬇ Excel Raporu İndir</button>
+                <div class="bulk-table-wrap" id="bulk-table-wrap"></div>
+            </div>
+        </div>
+
+        <hr />
+        <div class="footer">© AquaPredict | Random Forest AI Engine | WHO Standartları</div>
+    </div>
+
+    <script>
+        // ─── PARAMETRE TANIMI ───────────────────────────────────────
+        const WHO_INFO = {
+            ph: { label: "pH", unit: "", min: 0, max: 14, step: 0.1, def: 7.0, who: "WHO: 6.5–8.5", warnLow: 4, warnHigh: 10.5 },
+            Hardness: { label: "Sertlik", unit: "mg/L", min: 47, max: 323, step: 0.5, def: 196, who: "≤ 500 mg/L", warnLow: 50, warnHigh: 320 },
+            Solids: { label: "TDS", unit: "ppm", min: 320, max: 61230, step: 10, def: 21000, who: "≤ 1000 ppm", warnLow: null, warnHigh: 55000 },
+            Chloramines: { label: "Kloramin", unit: "ppm", min: 0.35, max: 13.1, step: 0.05, def: 7.1, who: "≤ 4 ppm", warnLow: null, warnHigh: 12 },
+            Sulfate: { label: "Sülfat", unit: "mg/L", min: 129, max: 481, step: 0.5, def: 333, who: "≤ 250 mg/L", warnLow: null, warnHigh: 470 },
+            Conductivity: { label: "İletkenlik", unit: "μS/cm", min: 181, max: 753, step: 0.5, def: 421, who: "≤ 400 μS/cm", warnLow: null, warnHigh: 740 },
+            Organic_carbon: { label: "Org. Karbon", unit: "ppm", min: 2.2, max: 28.3, step: 0.1, def: 14, who: "≤ 2 ppm", warnLow: null, warnHigh: 26 },
+            Trihalomethanes: { label: "THM", unit: "μg/L", min: 0.738, max: 124, step: 0.1, def: 66, who: "≤ 100 μg/L", warnLow: null, warnHigh: 118 },
+            Turbidity: { label: "Bulanıklık", unit: "NTU", min: 1.45, max: 6.74, step: 0.01, def: 3.96, who: "≤ 1 NTU", warnLow: null, warnHigh: 6.2 },
+        };
+        const FEATURES = ["ph", "Hardness", "Solids", "Chloramines", "Sulfate", "Conductivity", "Organic_carbon", "Trihalomethanes", "Turbidity"];
+        const IDEAL = { ph: 7.08, Hardness: 196.4, Solids: 22014, Chloramines: 7.12, Sulfate: 333.8, Conductivity: 426.2, Organic_carbon: 14.3, Trihalomethanes: 66.4, Turbidity: 3.97 };
+
+        // Importances from Flask
+        const IMPORTANCES = {{ importances | tojson }};
+
+        // ─── BUILD SLIDERS ──────────────────────────────────────────
+        function buildSliders() {
+            const grid = document.getElementById("param-grid");
+            FEATURES.forEach(feat => {
+                const info = WHO_INFO[feat];
+                const unitDisp = info.unit ? ` ${info.unit}` : "";
+                const headerLabel = info.unit ? `${info.label} (${info.unit})` : info.label;
+                const pct = ((info.def - info.min) / (info.max - info.min) * 100).toFixed(1);
+
+                const card = document.createElement("div");
+                card.className = "param-card";
+                card.innerHTML = `
+      <div class="val-input-wrap">
+          <input type="number" class="val-input" id="val-input-${feat}" 
+                 value="${info.def.toFixed(2)}" min="${info.min}" max="${info.max}" step="${info.step}"
+                 onchange="updateFromInput('${feat}', this)" />
+          <span class="val-unit">${info.unit}</span>
+      </div>
+      <div class="param-header">
+        <span class="param-name">${headerLabel}</span>
+        <span class="param-who">(${info.who})</span>
+      </div>
+      <div class="slider-wrap">
+        <input type="range"
+          id="slider-${feat}"
+          min="${info.min}" max="${info.max}" step="${info.step}" value="${info.def}"
+          style="background:linear-gradient(to right,#0ea5e9 ${pct}%,#e2e8f0 ${pct}%)"
+          oninput="updateSlider('${feat}', this)"
+        />
+        <div class="slider-minmax"><span>${info.min}</span><span>${info.max}</span></div>
+      </div>`;
+                grid.appendChild(card);
+            });
+        }
+
+        function updateSlider(feat, input) {
+            const info = WHO_INFO[feat];
+            const val = parseFloat(input.value);
+            const pct = ((val - info.min) / (info.max - info.min) * 100).toFixed(1);
+            input.style.background = `linear-gradient(to right,#0ea5e9 ${pct}%,#e2e8f0 ${pct}%)`;
+
+            // Text inputu güncelle
+            document.getElementById(`val-input-${feat}`).value = val.toFixed(2);
+
+            checkWarnings();
+        }
+
+        // TEXT INPUTTAN GELEN DEĞERİ SLIDERA İLET
+        function updateFromInput(feat, input) {
+            const info = WHO_INFO[feat];
+            let val = parseFloat(input.value);
+
+            // Girilen değer sınırların dışındaysa düzelt
+            if (isNaN(val)) val = info.def;
+            if (val < info.min) val = info.min;
+            if (val > info.max) val = info.max;
+
+            // Kutudaki değeri tekrar formatlı göster
+            input.value = val.toFixed(2);
+
+            // Slider'ı güncelle
+            const slider = document.getElementById(`slider-${feat}`);
+            slider.value = val;
+            const pct = ((val - info.min) / (info.max - info.min) * 100).toFixed(1);
+            slider.style.background = `linear-gradient(to right,#0ea5e9 ${pct}%,#e2e8f0 ${pct}%)`;
+
+            checkWarnings();
+        }
+
+        function checkWarnings() {
+            const wrap = document.getElementById("warnings-wrap");
+            const title = document.getElementById("warnings-title");
+            // temizle
+            wrap.querySelectorAll(".warn-box").forEach(e => e.remove());
+            let any = false;
+            FEATURES.forEach(feat => {
+                const info = WHO_INFO[feat];
+                const val = parseFloat(document.getElementById(`slider-${feat}`).value);
+                const unitDisp = info.unit ? ` ${info.unit}` : "";
+                if (info.warnHigh && val >= info.warnHigh) {
+                    const d = document.createElement("div");
+                    d.className = "warn-box";
+                    d.textContent = `⚠️ ${info.label} çok yüksek (${val.toFixed(2)}${unitDisp})`;
+                    wrap.appendChild(d); any = true;
+                }
+                if (info.warnLow && val <= info.warnLow) {
+                    const d = document.createElement("div");
+                    d.className = "warn-box";
+                    d.textContent = `⚠️ ${info.label} çok düşük (${val.toFixed(2)})`;
+                    wrap.appendChild(d); any = true;
+                }
+            });
+            title.style.display = any ? "block" : "none";
+        }
+
+        // ─── ANALYZE ───────────────────────────────────────────────
+        async function analyze() {
+            const spinner = document.getElementById("analyze-spinner");
+            spinner.classList.add("show");
+            const payload = {};
+            FEATURES.forEach(f => { payload[f] = parseFloat(document.getElementById(`slider-${f}`).value); });
+
+            const res = await fetch("/predict", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+            const data = await res.json();
+            spinner.classList.remove("show");
+
+            // Sonuçları kaydet
+            window._lastResult = data;
+            window._lastValues = { ...payload };
+
+            showResult(data);
+            buildRadar(payload);
+            switchTab("result");
+        }
+
+        function showResult(data) {
+            const safe = data.probability * 100;
+            const risky = (1 - data.probability) * 100;
+
+            document.getElementById("result-placeholder").style.display = "none";
+            document.getElementById("result-content").style.display = "block";
+
+            const card = document.getElementById("result-card");
+            if (data.prediction === 1) {
+                card.className = "result-card result-safe";
+                card.innerHTML = `<div class="result-title">✅ GÜVENLİ İÇME SUYU</div><div class="result-sub">Model bu suyu <strong>içilebilir</strong> olarak sınıflandırdı.</div>`;
+            } else {
+                card.className = "result-card result-danger";
+                card.innerHTML = `<div class="result-title">⚠️ RİSKLİ SU</div><div class="result-sub">Model bu suyu <strong>içilemez</strong> olarak tespit etti.</div>`;
+            }
+
+            document.getElementById("m-safe").textContent = `%${safe.toFixed(1)}`;
+            document.getElementById("m-risky").textContent = `%${risky.toFixed(1)}`;
+            document.getElementById("m-decision").textContent = data.prediction === 1 ? "İçilebilir" : "İçilemez";
+
+            // Gauge
+            drawGauge(safe, data.prediction === 1);
+        }
+
+        // ─── GAUGE ─────────────────────────────────────────────────
+        function drawGauge(pct, isSafe) {
+            const angle = -180 + (pct / 100) * 180; // -180 → 0
+            const rad = angle * Math.PI / 180;
+            const cx = 150, cy = 150, r = 130;
+            const ex = cx + r * Math.cos(rad);
+            const ey = cy + r * Math.sin(rad);
+            const large = pct > 50 ? 1 : 0;
+            const color = isSafe ? "#10b981" : "#ef4444";
+
+            const arc = `M 20 150 A 130 130 0 ${large} 1 ${ex.toFixed(2)} ${ey.toFixed(2)}`;
+            document.getElementById("gauge-arc").setAttribute("d", arc);
+            document.getElementById("gauge-arc").setAttribute("stroke", color);
+            document.getElementById("gauge-pct").textContent = `${pct.toFixed(1)}%`;
+        }
+
+        // ─── IMPORTANCE CHART ──────────────────────────────────────
+        function buildImportanceChart() {
+            const pairs = FEATURES.map((f, i) => ({ label: WHO_INFO[f].label, val: IMPORTANCES[i] }))
+                .sort((a, b) => a.val - b.val);
+            const max = Math.max(...pairs.map(p => p.val));
+            const wrap = document.getElementById("importance-chart");
+            wrap.innerHTML = pairs.map(p => `
+    <div class="xai-bar-row">
+      <span class="xai-label">${p.label}</span>
+      <div class="xai-bar-bg"><div class="xai-bar-fill" style="width:${(p.val / max * 100).toFixed(1)}%"></div></div>
+      <span class="xai-score">${p.val.toFixed(3)}</span>
+    </div>`).join("");
+        }
+
+        // ─── RADAR ─────────────────────────────────────────────────
+        function buildRadar(userVals) {
+            const svg = document.getElementById("radar-svg");
+            const cx = 170, cy = 140, r = 95;
+            const n = FEATURES.length;
+            svg.innerHTML = "";
+
+            function norm(f, v) {
+                const mn = WHO_INFO[f].min, mx = WHO_INFO[f].max;
+                return mx !== mn ? (v - mn) / (mx - mn) : 0.5;
+            }
+            function point(i, ratio) {
+                const a = (i / n) * 2 * Math.PI - Math.PI / 2;
+                return [cx + ratio * r * Math.cos(a), cy + ratio * r * Math.sin(a)];
+            }
+
+            // Grid rings
+            [0.25, 0.5, 0.75, 1].forEach(ring => {
+                const pts = FEATURES.map((_, i) => point(i, ring).join(",")).join(" ");
+                const pol = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+                pol.setAttribute("points", pts);
+                pol.setAttribute("fill", "none");
+                pol.setAttribute("stroke", "#e2e8f0");
+                pol.setAttribute("stroke-width", "1");
+                svg.appendChild(pol);
+            });
+
+            // Axis lines + labels
+            FEATURES.forEach((f, i) => {
+                const [x2, y2] = point(i, 1);
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", cx); line.setAttribute("y1", cy);
+                line.setAttribute("x2", x2); line.setAttribute("y2", y2);
+                line.setAttribute("stroke", "#e2e8f0"); line.setAttribute("stroke-width", "1");
+                svg.appendChild(line);
+
+                const [lx, ly] = point(i, 1.18);
+                const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                txt.setAttribute("x", lx); txt.setAttribute("y", ly);
+                txt.setAttribute("text-anchor", "middle"); txt.setAttribute("dominant-baseline", "middle");
+                txt.setAttribute("font-size", "9"); txt.setAttribute("fill", "#475569");
+                txt.setAttribute("font-family", "Inter");
+                txt.textContent = WHO_INFO[f].label;
+                svg.appendChild(txt);
+            });
+
+            function drawPoly(vals, color, fillOpacity) {
+                const pts = FEATURES.map((f, i) => point(i, vals[i]).join(",")).join(" ");
+                const pol = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+                pol.setAttribute("points", pts);
+                pol.setAttribute("fill", color);
+                pol.setAttribute("fill-opacity", fillOpacity);
+                pol.setAttribute("stroke", color);
+                pol.setAttribute("stroke-width", "2");
+                svg.appendChild(pol);
+            }
+
+            const idealRatios = FEATURES.map(f => norm(f, IDEAL[f]));
+            const userRatios = FEATURES.map(f => norm(f, userVals ? userVals[f] : WHO_INFO[f].def));
+
+            drawPoly(idealRatios, "#f59e0b", 0.12);
+            drawPoly(userRatios, "#2563eb", 0.15);
+
+            // Legend
+            [[`#f59e0b`, "Ortalama Profil"], [`#2563eb`, "Girdiğiniz Su"]].forEach(([c, txt], i) => {
+                const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                rect.setAttribute("x", 20); rect.setAttribute("y", 270 + i * 18);
+                rect.setAttribute("width", 12); rect.setAttribute("height", 12);
+                rect.setAttribute("fill", c); rect.setAttribute("rx", "2");
+                const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                t.setAttribute("x", 40); t.setAttribute("y", 280 + i * 18);
+                t.setAttribute("font-size", "10"); t.setAttribute("fill", "#475569");
+                t.setAttribute("font-family", "Inter");
+                t.textContent = txt;
+                g.appendChild(rect); g.appendChild(t);
+                svg.appendChild(g);
+            });
+        }
+
+        // ─── TABS ──────────────────────────────────────────────────
+        function switchTab(name) {
+            document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+            document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+            document.getElementById(`tab-${name}`).classList.add("active");
+            const btns = document.querySelectorAll(".tab-btn");
+            const idx = { manual: 0, result: 1, xai: 2, bulk: 3 }[name];
+            btns[idx].classList.add("active");
+            if (name === "xai" && window._lastValues) buildRadar(window._lastValues);
+        }
+
+        // ─── BULK ──────────────────────────────────────────────────
+        async function uploadBulk(input) {
+            const file = input.files[0];
+            if (!file) return;
+            document.getElementById("bulk-spinner").classList.add("show");
+            document.getElementById("bulk-summary").style.display = "none";
+
+            const fd = new FormData();
+            fd.append("file", file);
+
+            const res = await fetch("/bulk", { method: "POST", body: fd });
+            const data = await res.json();
+            document.getElementById("bulk-spinner").classList.remove("show");
+
+            if (data.error) { alert(data.error); return; }
+
+            document.getElementById("b-safe").textContent = data.safe;
+            document.getElementById("b-risky").textContent = data.risky;
+            document.getElementById("b-avg").textContent = `%${data.avg}`;
+            document.getElementById("bulk-summary").style.display = "block";
+
+            // Table
+            const cols = data.cols;
+            let html = `<table><thead><tr>${cols.map(c => `<th>${c}</th>`).join("")}</tr></thead><tbody>`;
+            data.rows.forEach(row => {
+                html += "<tr>" + cols.map(c => {
+                    if (c === "Durum") return `<td><span class="${row[c] === "Güvenli" ? "badge-safe" : "badge-risky"}">${row[c]}</span></td>`;
+                    return `<td>${typeof row[c] === "number" ? row[c].toFixed ? row[c].toFixed(2) : row[c] : row[c]}</td>`;
+                }).join("") + "</tr>";
+            });
+            html += "</tbody></table>";
+            document.getElementById("bulk-table-wrap").innerHTML = html;
+
+            window._bulkFile = file;
+        }
+
+        function downloadSample() {
+            const header = FEATURES.join(",");
+            const row1 = FEATURES.map(f => WHO_INFO[f].def).join(",");
+            const row2 = FEATURES.map(f => (WHO_INFO[f].min * 1.1).toFixed(2)).join(",");
+            const csv = `${header}\n${row1}\n${row2}`;
+            const blob = new Blob([csv], { type: "text/csv" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "aquapredict_sample.csv";
+            a.click();
+        }
+
+        document.getElementById("download-excel-btn").onclick = async function () {
+            if (!window._bulkFile) return;
+            const fd = new FormData();
+            fd.append("file", window._bulkFile);
+            const res = await fetch("/bulk_excel", { method: "POST", body: fd });
+            const blob = await res.blob();
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "aquapredict_rapor.xlsx";
+            a.click();
+        };
+
+        // ─── INIT ──────────────────────────────────────────────────
+        buildSliders();
+        buildImportanceChart();
+        buildRadar(null);
+    </script>
+</body>
+
+</html>
