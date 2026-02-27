@@ -1,4 +1,4 @@
-# 💧 AquaPredict: Advanced Water Quality & Potability Analysis
+# 💧 AquaPredict: Su Kalitesi ve İçilebilirlik Analizi
 
 ## Gelecek Nesillere Temiz Bir Dokunuş
 Temiz içme suyuna erişim, en temel insan haklarından biridir. Çevresel sürdürülebilirliğe katkıda bulunmak ve kimyasal su analiz süreçlerini yapay zeka ile şeffaflaştırabilmek amacıyla geliştirilmiş olan **AquaPredict**; 9 kritik biyokimyasal parametreyi inceleyerek içilebilir su risk analizi yapar.
